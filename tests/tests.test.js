@@ -35,6 +35,8 @@ describe('add', () => {
     test('returns the correct value when one of the arguments is zero', () => {
         expect(add(2, 0)).toBe(2);
     });
+
+    // TODO: Negative test: String, null, undefined
 });
 
 describe('toString', () => {
