@@ -149,10 +149,17 @@ describe('upperFirst', () => {
 
 describe('countBy', () => {
     test('counts number of occurrences based on condition', () => {
-        expect(countBy([1, 2, 3, 4], (n) => n % 2 === 0)).toEqual({ 'true': 2, 'false': 2 });
+        const collection = [1, 2, 3, 4];
+        const iteratee = (n) => n % 2 === 0;
+        const expected = { 'true': 2, 'false': 2 };
+        console.log(countBy(collection, iteratee));
+        expect(countBy(collection, iteratee)).toEqual(expected);
     });
 
     test('returns empty object when no elements pass condition', () => {
-        expect(countBy([1, 3, 5], (n) => n % 2 === 0)).toEqual({});
+        const collection = [1, 3, 5];
+        const iteratee = (n) => n % 2 === 0;
+        const expected = {};
+        expect(countBy(collection, iteratee)).toEqual(expected);
     });
 });
