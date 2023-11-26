@@ -8,6 +8,7 @@ import toString from '../src/toString.js';
 import divide from '../src/divide.js';
 import filter from '../src/filter.js';
 import isArrayLikeObject from '../src/isArrayLikeObject.js';
+import { template } from '@babel/core';
 // add
 // toString
 // divide
@@ -258,58 +259,320 @@ describe('isArrayLikeObject', () => {
 });
 
 describe('ceil', () => {
-    test('rounds up to nearest integer', () => {
-        expect(ceil(4.2)).toBe(5);
+
+    // Positive tests
+    test('per example, rounds up to nearest integer', () => {
+        expect(ceil(4.006)).toBe(5);
+    });
+
+    test('per example, rounds up to two decimals', () => {
+        expect(ceil(6.004, 2)).toBe(6.01);
+    });
+
+    test('per example, rounds up to -2 decimals', () => {
+        expect(ceil(6040, -2)).toBe(6100);
+    });
+
+    test('rounds up to nearest negative integer', () => {
+        expect(ceil(-4.006)).toBe(-4);
     });
 
     test('returns same number when already an integer', () => {
         expect(ceil(5)).toBe(5);
     });
+
+    test('returns same number when already an integer with decimals', () => {
+        expect(ceil(5.0)).toBe(5);
+    });
+
+    test('rounds up a very small  or large number', () => {
+        expect(ceil(0.00000000000000000000000001)).toBe(1);
+        expect(ceil(100000000000000000000000000.1)).toBe(100000000000000000000000001);
+    });
+
+    // Negative tests
+
+    test('throws error when number is not a number', () => {
+        expect(ceil('hello')).toThrow(Error('number is not a number'));
+    });
+
+    test('throws error when precision is not a number', () => {
+        expect(ceil(4.006, 'hello')).toThrow(Error('precision is not a number'));
+    });
+
+    test('throws error when number is null', () => {
+        expect(ceil(null)).toThrow(Error('number is not a number'));
+    });
+
+    test('throws error when precision is null', () => { 
+        expect(ceil(4.006, null)).toThrow(Error('precision is not a number'));
+    });
+
+    test('throws error when number is undefined', () => {
+        expect(ceil(undefined)).toThrow(Error('number is not a number'));
+    });
+
+    test('throws error when precision is undefined', () => {        
+        expect(ceil(4.006, undefined)).toThrow(Error('precision is not a number'));
+    });
+
+    test('throws error when no arguments are passed', () => {
+        expect(ceil()).toThrow(Error('number is not defined'));
+    });
+
+    test('throws error when only precision is passed', () => {
+        expect(ceil(undefined, 2)).toThrow(Error('number is not defined'));
+    });
+
+    test('throws error when number is Infinity', () => {
+        expect(ceil(Infinity)).toThrow(Error('number is not a number'));
+    });
+
+    test('throws error when precision is Infinity', () => {
+        expect(ceil(4.006, Infinity)).toThrow(Error('precision is not a number'));
+    });
 });
 
 describe('difference', () => {
-    test('returns difference between two arrays', () => {
-        expect(difference([1, 2, 3], [2, 3, 4])).toEqual([1]);
+
+    // Positive tests
+
+    test('per example, returns difference between two arrays of integers', () => {
+        expect(difference([2, 1], [2, 3])).toEqual([1]);
     });
 
     test('returns empty array when no difference', () => {
         expect(difference([1, 2, 3], [1, 2, 3])).toEqual([]);
     });
+
+    test('returns difference between two arrays of strings', () => {
+        expect(difference(['a', 'b', 'c'], ['a', 'b', 'd'])).toEqual(['c']);
+    });
+
+    test('returns difference between two arrays of objects', () => {
+        expect(difference([{ 'x': 2 }, { 'x': 1 }], [{ 'x': 1 }])).toEqual([{ 'x': 2 }]);
+    });
+
+    test('returns difference between two arrays of mixed types', () => {
+        expect(difference([1, 'a', true], [1, 'b', false])).toEqual(['a', true]);
+    });
+
+    // Negative tests
+
+    test('throws error when first argument is not an array', () => {
+        expect(difference(1, [1, 2])).toThrow(Error('first argument is not an array'));
+    });
+
+    test('throws error when second argument is not an array', () => {
+        expect(difference([1, 2], 1)).toThrow(Error('second argument is not an array'));
+    });
+
+    test('throws error when first argument is null', () => {
+        expect(difference(null, [1, 2])).toThrow(Error('first argument is not an array'));
+    });
+
+    test('throws error when second argument is null', () => {
+        expect(difference([1, 2], null)).toThrow(Error('second argument is not an array'));
+    });
+
+    test('throws error when first argument is undefined', () => {
+        expect(difference(undefined, [1, 2])).toThrow(Error('first argument is not an array'));
+    });
+
+    test('throws error when second argument is undefined', () => {
+        expect(difference([1, 2], undefined)).toThrow(Error('second argument is not an array'));
+    });
+
+    test('throws error when no arguments are passed', () => {
+        expect(difference()).toThrow(Error('first argument is not defined'));
+    });
+
+    test('throws error when only first argument is passed', () => {
+        expect(difference([1, 2])).toThrow(Error('second argument is not defined'));
+    });
+
+    test('throws error when first argument is an empty object', () => {
+        expect(difference({}, [1, 2])).toThrow(Error('first argument is not an array'));
+    });
+
+    test('throws error when second argument is an empty object', () => {
+        expect(difference([1, 2], {})).toThrow(Error('second argument is not an array'));
+    });
+
+    test('throws error when first argument is an empty string', () => {
+        expect(difference('', [1, 2])).toThrow(Error('first argument is not an array'));
+    });
+
+    test('throws error when second argument is an empty string', () => {
+        expect(difference([1, 2], '')).toThrow(Error('second argument is not an array'));
+    });
+
+    test('throws error when first argument is a function', () => {
+        expect(difference(Function, [1, 2])).toThrow(Error('first argument is not an array'));
+    });
+
+    test('throws error when second argument is a function', () => {
+        expect(difference([1, 2], Function)).toThrow(Error('second argument is not an array'));
+    });
+
+    test('throws error when both arguments are not array-like objects', () => {
+        expect(difference(1, 1)).toThrow(Error('first argument is not an array'));
+    });
 });
 
 describe('toInteger', () => {
-    test('converts number to integer', () => {
-        expect(toInteger(4.2)).toBe(4);
+
+    // Positive tests
+
+    test('per example, converts string to integer', () => {
+        expect(toInteger('3.2')).toBe(3);
     });
 
-    test('converts string to integer', () => {
-        expect(toInteger('4.2')).toBe(4);
+    test('per example, converts Number.MIN_VALUE to 0', () => {
+        expect(toInteger(Number.MIN_VALUE)).toBe(0);
     });
+
+    test('per example, converts 3.2 to 3', () => {
+        expect(toInteger(3.2)).toBe(3);
+    });
+
+    test('per example, converts Infinity to 1.7976931348623157e+308', () => {
+        expect(toInteger(Infinity)).toBe(1.7976931348623157e+308);
+        expect(toInteger(-Infinity)).toBe(-1.7976931348623157e+308);
+    });
+
+    test('converts negative number with decimals to negative integer', () => {
+        expect(toInteger(-3.2)).toBe(-3);
+    });
+
+    test('converts negative number without decimals to negative integer', () => {
+        expect(toInteger(-3)).toBe(-3);
+    });
+
+    // Negative tests
+
+    test('returns NaN when input is not a number', () => {
+        expect(toInteger('abc')).toBe(NaN);
+        expect(toInteger(null)).toBe(NaN);
+        expect(toInteger(undefined)).toBe(NaN);
+        expect(toInteger({})).toBe(NaN);
+        expect(toInteger([])).toBe(NaN);
+        expect(toInteger(true)).toBe(NaN);
+        expect(toInteger(false)).toBe(NaN);
+    });
+
+    test('throws error when input is an empty string', () => {
+        expect(toInteger('')).toThrow(Error('input is an empty string'));
+    });
+
+    test('throws error when input is a string with non-numeric characters', () => {
+        expect(toInteger('abc123')).toThrow(Error('input is a string with non-numeric characters'));
+        expect(toInteger('12abc34')).toThrow(Error('input is a string with non-numeric characters'));
+    });
+
+
 });
 
 describe('upperFirst', () => {
-    test('capitalizes first letter of string', () => {
-        expect(upperFirst('hello')).toBe('Hello');
+
+    // Positive tests
+
+    test('per example, capitalizes first letter of string', () => {
+        expect(upperFirst('fred')).toBe('Fred');
+    });
+
+    test('per example, returns all caps when string is all caps', () => {
+        expect(upperFirst('FRED')).toBe('FRED');
     });
 
     test('returns empty string when input is empty', () => {
         expect(upperFirst('')).toBe('');
     });
+
+    test('returns same string when first character is already capitalized', () => {
+        expect(upperFirst('Fred')).toBe('Fred');
+    });
+
+    // Negative tests
+
+    test('throws error when input is not a string', () => {
+        expect(upperFirst(123)).toThrow(Error('input is not a string'));
+        expect(upperFirst(null)).toThrow(Error('input is not a string'));
+        expect(upperFirst(undefined)).toThrow(Error('input is not a string'));
+        expect(upperFirst({})).toThrow(Error('input is not a string'));
+        expect(upperFirst([])).toThrow(Error('input is not a string'));
+        expect(upperFirst(true)).toThrow(Error('input is not a string'));
+        expect(upperFirst(false)).toThrow(Error('input is not a string'));
+    });
+
+    test('throws error when first character is not a letter', () => {
+        expect(upperFirst('123abc')).toThrow(Error('first character is not alphabetic'));
+    });
+
 });
 
 describe('countBy', () => {
-    test('counts number of occurrences based on condition', () => {
-        const collection = [1, 2, 3, 4];
-        const iteratee = (n) => n % 2 === 0;
-        const expected = { 'true': 2, 'false': 2 };
-        console.log(countBy(collection, iteratee));
-        expect(countBy(collection, iteratee)).toEqual(expected);
+    // countBy() has erroneous baseAssignValue(), value should be 1 instead of 0
+
+    // Positive tests
+    test('per example, counts number of active users', () => {
+    const users = [
+        { 'user': 'barney', 'active': true },
+        { 'user': 'betty', 'active': true },
+        { 'user': 'fred', 'active': false }
+      ];
+      expect(countBy(users, value => value.active)).toEqual({ 'true': 2, 'false': 1 });
+      
     });
 
-    test('returns empty object when no elements pass condition', () => {
-        const collection = [1, 3, 5];
-        const iteratee = (n) => n % 2 === 0;
-        const expected = {};
-        expect(countBy(collection, iteratee)).toEqual(expected);
+    test('counts number of users with the same name', () => {
+    const users = [
+        { 'user': 'barney', 'active': true },
+        { 'user': 'barney', 'active': true },
+        { 'user': 'fred', 'active': false }
+        ];
+    expect(countBy(users, value => value.user)).toEqual({ 'barney': 2, 'fred': 1 });
+    });
+
+    test('counts even numbers from 1-4', () => {
+        expect(countBy([1, 2, 3, 4], (n) => n % 2 === 0)).toEqual({ 'true': 2, 'false': 2 });
+    });
+
+    test('whole collection returns false', () => {
+        expect(countBy([1, 3, 5], (n) => n % 2 === 0)).toEqual({ 'false': 3 });
+    });
+
+    test('whole collection returns true', () => {
+        expect(countBy([2, 4, 6], (n) => n % 2 === 0)).toEqual({ 'true': 3 });
+    });
+
+    test('returns empty object when collection is empty', () => {
+        expect(countBy([], (n) => n % 2 === 0)).toEqual({});
+    });
+
+    // Negative tests
+
+    test('throws error when collection is not an array or object', () => {
+        expect(countBy(3, (n) => n % 2 === 0)).toThrow(Error('collection is not an array or object'));
+    });
+
+    test('throws error when iteratee is not a function', () => {
+        expect(countBy([1, 2, 3], 'hello')).toThrow(Error('iteratee is not a function'));
+    });
+
+    test('throws error when iteratee is not defined', () => {
+        expect(countBy([1, 2, 3])).toThrow(Error('iteratee is not defined'));
+    });
+
+    test('throws error when collection is null', () => {
+        expect(countBy(null, (n) => n % 2 === 0)).toThrow(Error('collection is not an array or object'));
+    });
+
+    test('throws error when iteratee is null', () => {
+        expect(countBy([1, 2, 3], null)).toThrow(Error('iteratee is not a function'));
+    });
+
+    test('throws error when no arguments are passed', () => {
+        expect(countBy()).toThrow(Error('collection is not defined'));
     });
 });
