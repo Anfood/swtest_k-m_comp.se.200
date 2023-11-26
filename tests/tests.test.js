@@ -74,13 +74,13 @@ describe('add', () => {
         expect(add(2, Infinity)).toThrow(Error('Invalid argument "Infinity"'));
     });
 
-    test('returns NaN when both arguments are Infinity or -Infinity', () => {
+    test('returns NaN and throws error when both arguments are Infinity or -Infinity', () => {
         expect(add(Infinity, Infinity)).toBeNaN();
         expect(add(-Infinity, -Infinity)).toBeNaN();
         expect(add(Infinity, Infinity)).toThrow(Error('Invalid argument "Infinity"'));
     });
 
-    test('returns NaN when one of the arguments is Boolean', () => {
+    test('returns NaN and throws error when one of the arguments is Boolean', () => {
         expect(add(2, true)).toBeNaN();
         expect(add(2, false)).toBeNaN();
         expect(add(2, true)).toThrow(Error('Invalid argument "true"'));
