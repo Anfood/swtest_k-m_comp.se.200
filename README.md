@@ -18,4 +18,4 @@ After pulling the repository to your local device, run `npm install` to install 
 
 ## Github CI pipeline
 
-The Github CI will fire and run on the opening of a pull request and on push to the main branch which occurs either on merge or direct push. 
+The Github CI will fire and run on the opening of a pull request and on push to the main branch which occurs either on merge of another branch to main or direct push. You can also run the pipeline manually from the Actions tab by selecting the workflow and then selecting Run workflow.
