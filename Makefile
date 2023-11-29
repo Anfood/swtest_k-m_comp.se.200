@@ -1,2 +1,2 @@
 test-coverage:
-	npm run coverage
+	npx jest --coverage 
