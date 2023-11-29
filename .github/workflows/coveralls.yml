@@ -22,4 +22,5 @@ jobs:
         npx jest --coverage --coverageReporters=text-lcov
 
     - name: Coveralls
+      if: always()
       uses: coverallsapp/github-action@v2
