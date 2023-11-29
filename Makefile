@@ -1,2 +1,2 @@
 test-coverage:
-	npx jest --coverage 
+	npx jest --coverage --coverageReporters=text-lcov
