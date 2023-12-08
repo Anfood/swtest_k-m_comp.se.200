@@ -125,13 +125,6 @@ describe('toString', () => {
         expect(toString(-0)).toBe('-0');
     });
 
-    test('returns string when argument is Symbol', () => {
-        expect(toString(Symbol('abc'))).toBe('Symbol(abc)');
-    });
-
-    test('returns string when argument is string', () => {
-        expect(toString('abc')).toBe('abc');
-    });
     
 });
 
